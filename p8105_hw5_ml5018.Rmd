@@ -129,3 +129,47 @@ result |>
        y = "estimate and 95% CI", 
        title = "Proportion Test Results for Unsolved Homisides")
 ```
+
+# Problem 2
+
+Create a tidy dataframe containing data from all participants, including the subject ID, arm, and observations over time:
+
+* Start with a dataframe containing all file names; the `list.files` function will help
+* Iterate over file names and read in data for each subject using `purrr::map` and saving the result as a new variable in the dataframe
+* Tidy the result; manipulate file names to include control arm and subject ID, make sure weekly observations are “tidy”, and do any other tidying that’s necessary
+* Make a spaghetti plot showing observations on each subject over time, and comment on differences between groups.
+
+```{r}
+file_name = 
+  list.files(path = "./data/longitudinal_data/", pattern = ".csv")
+
+longitudinal_data = 
+  data_frame(file = file_name) |>
+  mutate(
+    file_path = str_c("data/longitudinal_data/", file),
+    data = map(file_path, read_csv)) |>
+  unnest(data) |>
+  janitor::clean_names() |>
+  separate(file, into = c("arm", "subject_id"), sep = "_") |>
+  mutate(
+    arm = as.factor(case_match(arm, "con" ~ "control", "exp" ~ "experiment")),
+    subject_id = str_replace(subject_id, ".csv", "")
+  ) |>
+  pivot_longer(week_1:week_8, 
+               names_to = "week",
+               names_prefix = "week_",
+               values_to = "observation") |>
+  select(arm, subject_id, week, observation)
+longitudinal_data
+
+longitudinal_data |>
+  ggplot(aes(x = week, y = observation, 
+             group = subject_id, color = subject_id)) +
+  geom_line() +
+  facet_grid(.~arm) +
+  labs(x = "week",
+       y = "observation",
+       title = "Observation over time for Each Subject")
+```
+
+It can be seen from the spaghetti plot that there exists an obvious difference between the observations of two groups, with an increasing trend and consequenct higher value in the experiment arm compared with the control arm. The observation of subjects all subjects in experiment group reaches a positive value, while that of control group fluctuates around 0 in 8 weeks.
