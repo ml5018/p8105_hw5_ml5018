@@ -26,3 +26,23 @@ options(
 scale_colour_discrete = scale_colour_viridis_d
 scale_fill_discrete = scale_fill_viridis_d
 ```
+
+# Problem 1
+
+## summary of data
+
+Describe the raw data.
+
+```{r}
+homicides_data = 
+  read_csv("data/homicide-data.csv") |>
+  janitor::clean_names()
+```
+
+This data set contains data on homicides in 50 large U.S. cities, gathered by the Washington Post. The Post has mapped more than 52,000 homicides in major American cities over the past decade and found that across the country, there are areas where murder is common but arrests are rare.
+
+The data set consists of `r nrow(homicides_data)` observations of `r ncol(homicides_data)` variables. A more detailed summary of the raw data is posted below.
+
+```{r}
+skimr::skim(homicides_data)
+```
