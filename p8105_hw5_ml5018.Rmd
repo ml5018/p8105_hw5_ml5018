@@ -173,3 +173,39 @@ longitudinal_data |>
 ```
 
 It can be seen from the spaghetti plot that there exists an obvious difference between the observations of two groups, with an increasing trend and consequenct higher value in the experiment arm compared with the control arm. The observation of subjects all subjects in experiment group reaches a positive value, while that of control group fluctuates around 0 in 8 weeks.
+
+# Problem 3
+
+## mu = 0
+
+First set the following design elements:
+
+* Fix n=30
+* Fix σ=5
+
+Set μ=0. Generate 5000 datasets from the model: x∼Normal[μ,σ]
+
+For each dataset, save μ̂ and the p-value arising from a test of H:μ=0 using α=0.05. Hint: to obtain the estimate and p-value, use broom::tidy to clean the output of `t.test`.
+
+```{r}
+sim_test = function(mu, n_obs = 30, sigma = 5){
+  sim_sample = rnorm(n = n_obs, mean = mu, sd = sigma)
+  
+  sim_result = 
+    t.test(sim_sample) |>
+    broom::tidy() |>
+    select(estimate, p.value)
+  
+  sim_result
+}
+
+result_mu_0 = 
+  expand_grid(
+    mu = 0,
+    iter = 1:5000
+  ) |>
+  mutate(result = map(mu, sim_test)) |>
+  unnest(result)
+
+result_mu_0
+```
