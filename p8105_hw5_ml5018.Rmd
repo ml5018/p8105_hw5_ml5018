@@ -46,3 +46,22 @@ The data set consists of `r nrow(homicides_data)` observations of `r ncol(homici
 ```{r}
 skimr::skim(homicides_data)
 ```
+
+## data manipulation
+
+Create a `city_state` variable (e.g. “Baltimore, MD”) and then summarize within cities to obtain the total number of homicides and the number of unsolved homicides (those for which the disposition is “Closed without arrest” or “Open/No arrest”).
+
+```{r}
+homicides_data = 
+  homicides_data |>
+  mutate(city_state = str_c(city, ", ", state))
+
+homicides_number = 
+  homicides_data |>
+  group_by(city_state) |>
+  summarize(
+    total_homicides = n(),
+    unsolved_homicides = 
+      sum(disposition %in% c("Closed without arrest","Open/No arrest")))
+homicides_number
+```
